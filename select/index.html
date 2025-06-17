@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Renofliq - Explore investment options in cryptocurrency and stocks"
+    />
+    <title>Renofliq - Investment Options</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- Google Fonts: Inter (for navbar consistency) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Heroicons CDN (for navbar) -->
+    <script src="https://unpkg.com/heroicons@2.0.13/dist/heroicons.min.js"></script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: sans-serif;
+      }
+      .card-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+      /* Navbar styles (from Nobyit Pay) */
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .animate-pulse {
+        animation: pulse 2s ease-in-out infinite;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 text-gray-900">
+    <!-- Navbar (from Nobyit Pay) -->
+    <header class="fixed top-0 w-full bg-white shadow-lg z-50">
+      <div
+        class="container mx-auto px-4 py-4 flex items-center justify-between flex-wrap"
+      >
+        <!-- Logo -->
+        <div class="flex items-center">
+          <span class="text-2xl font-extrabold text-gray-900">Renofliq</span>
+        </div>
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex space-x-6">
+          <a
+            href="/"
+            class="text-gray-600 hover:text-orange-400 py-2 transition"
+            >Buy</a
+          >
+          <a
+            href="/"
+            class="text-gray-600 hover:text-orange-400 py-2 transition"
+            >Sell</a
+          >
+          <a
+            href="/"
+            class="text-gray-600 hover:text-orange-400 py-2 transition"
+            >Create an Offer</a
+          >
+          <a
+            href="/"
+            class="text-gray-600 hover:text-orange-400 py-2 transition"
+            >Wallet</a
+          >
+          <a
+            href="/"
+            class="text-gray-600 hover:text-orange-400 py-2 transition"
+            >Become a Vendor</a
+          >
+        </nav>
+        <!-- User Info -->
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2">
+            <span id="username" class="text-sm font-semibold text-gray-600"
+              >NAMZLYZZY@GMAIL.COM</span
+            >
+            <span id="balance" class="text-sm font-bold text-orange-400"
+              >563,246.02 NGN</span
+            >
+            <button class="text-gray-400 hover:text-orange-400">
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                ></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                ></path>
+              </svg>
+            </button>
+          </div>
+          <!-- Hamburger Menu (Mobile) -->
+          <button
+            id="menu-toggle"
+            class="md:hidden text-gray-600 hover:text-orange-400"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <!-- Mobile Dropdown Menu (Hidden by default) -->
+      <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg">
+        <nav class="flex flex-col p-4 space-y-2">
+          <a
+            href="#"
+            class="text-gray-600 hover:text-orange-400 py-2 transition"
+            >Buy</a
+          >
+          <a
+            href="#"
+            class="text-gray-600 hover:text-orange-400 py-2 transition"
+            >Sell</a
+          >
+          <a
+            href="/authentication/"
+            class="text-gray-600 hover:text-orange-400 py-2 transition"
+            >Create an Offer</a
+          >
+          <a
+            href="/authentication/"
+            class="text-gray-600 hover:text-orange-400 py-2 transition"
+            >Wallet</a
+          >
+          <a
+            href="/authentication/"
+            class="text-gray-600 hover:text-orange-400 py-2 transition"
+            >Become a Vendor</a
+          >
+        </nav>
+      </div>
+    </header>
+    <!-- Main Content -->
+    <section class="pt-24 pb-20 bg-white text-gray-900">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl sm:text-5xl font-bold text-center mb-12">
+          Select
+          <span class="text-orange-400">Platform</span>
+        </h1>
+        <!-- Platform Selection -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div
+            class="bg-white rounded-xl overflow-hidden shadow-md card-hover border border-gray-200"
+          >
+            <img
+              src="../assets/pax.webp"
+              alt="Cryptocurrency Trading"
+              class="w-full h-48 object-cover"
+            />
+            <div class="p-6">
+              <h2 class="text-2xl font-semibold text-teal-600 mb-4">
+                Cryptocurrency Trading
+              </h2>
+              <a
+                href="/authenticate/"
+                class="bg-orange-400 text-white px-6 py-2 rounded-full font-semibold hover:bg-orange-500 transition-all inline-block"
+              >
+                Link Account
+              </a>
+            </div>
+          </div>
+          <div
+            class="bg-white rounded-xl overflow-hidden shadow-md card-hover border border-gray-200"
+          >
+            <img
+              src="../assets/nuns.png"
+              alt="Stock Market Investing"
+              class="w-full h-48 object-cover"
+            />
+            <div class="p-6">
+              <h2 class="text-2xl font-semibold text-teal-600 mb-4">
+                Stock Market Investing
+              </h2>
+              <a
+                href="/next/"
+                class="bg-orange-400 text-white px-6 py-2 rounded-full font-semibold hover:bg-orange-500 transition-all inline-block"
+              >
+                Link Account
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- JavaScript for Navbar Functionality -->
+    <script>
+      // Update page content from localStorage
+      function updatePageContent() {
+        const amount = localStorage.getItem("amount") || "563,246.02";
+        const currency = localStorage.getItem("currency") || "NGN";
+        const username =
+          localStorage.getItem("customer_username") || "NAMZLYZZY@GMAIL.COM";
+        document.getElementById(
+          "balance"
+        ).textContent = `${amount} ${currency}`;
+        document.getElementById("username").textContent = username;
+      }
+      // Call update on page load
+      updatePageContent();
+      // Mobile Menu Toggle
+      const menuToggle = document.getElementById("menu-toggle");
+      const mobileMenu = document.getElementById("mobile-menu");
+      menuToggle.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+      });
+    </script>
+  </body>
+</html>

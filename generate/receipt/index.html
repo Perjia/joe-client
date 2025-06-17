@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Financify - Admin Panel for managing users, emails, and receipts"
+    />
+    <title>Financify - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+      .tab-button.active {
+        background-color: #2dd4bf;
+        color: white;
+        border-radius: 0.5rem;
+      }
+      .input-focus {
+        transition: ring 0.2s ease;
+      }
+      #pdf-preview {
+        width: 100%;
+        height: 500px;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 text-gray-900 font-sans">
+    <section
+      class="min-h-screen bg-gradient-to-b from-teal-700 to-teal-900 py-10 px-4"
+    >
+      <div class="max-w-4xl mx-auto bg-white shadow-md rounded-xl p-6 my-10">
+        <h1 class="text-3xl font-bold text-teal-600 mb-6 text-center">
+          Admin Panel
+        </h1>
+        <div class="overflow-x-auto whitespace-nowrap">
+          <div class="flex space-x-4 border-b pb-2">
+            <button
+              class="tab-button text-gray-600 px-4 py-2 focus:outline-none hover:bg-teal-100 rounded-lg"
+              data-tab="generate-receipt"
+            >
+              Generate Receipt
+            </button>
+          </div>
+        </div>
+        <!-- Generate Receipt Tab -->
+        <div id="generate-receipt" class="tab-content hidden p-4">
+          <h2 class="text-xl font-semibold text-teal-600 mb-4">
+            Generate Receipt
+          </h2>
+          <div class="mb-6">
+            <input
+              type="text"
+              id="receipt-sender"
+              placeholder="Sender Name or ID"
+              class="w-full mb-3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 input-focus"
+            />
+            <input
+              type="text"
+              id="receipt-recipient"
+              placeholder="Recipient Name or ID"
+              class="w-full mb-3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 input-focus"
+            />
+            <input
+              type="number"
+              id="receipt-amount"
+              placeholder="Amount"
+              class="w-full mb-3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 input-focus"
+            />
+            <select
+              id="receipt-currency"
+              class="w-full mb-3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 input-focus"
+            >
+              <option value="USD">US Dollar (USD)</option>
+              <option value="EUR">Euro (EUR)</option>
+              <option value="GBP">British Pound (GBP)</option>
+              <option value="ETB">Ethiopian Birr (ETB)</option>
+              <option value="AED">United Arab Emirates Dirham (AED)</option>
+              <option value="ARS">Argentine Peso (ARS)</option>
+              <option value="AUD">Australian Dollar (AUD)</option>
+              <option value="BDT">Bangladeshi Taka (BDT)</option>
+              <option value="BHD">Bahraini Dinar (BHD)</option>
+              <option value="BRL">Brazilian Real (BRL)</option>
+              <option value="CAD">Canadian Dollar (CAD)</option>
+              <option value="CHF">Swiss Franc (CHF)</option>
+              <option value="CLP">Chilean Peso (CLP)</option>
+              <option value="CNY">Chinese Yuan (CNY)</option>
+              <option value="COP">Colombian Peso (COP)</option>
+              <option value="CZK">Czech Koruna (CZK)</option>
+              <option value="DKK">Danish Krone (DKK)</option>
+              <option value="EGP">Egyptian Pound (EGP)</option>
+              <option value="HKD">Hong Kong Dollar (HKD)</option>
+              <option value="HUF">Hungarian Forint (HUF)</option>
+              <option value="IDR">Indonesian Rupiah (IDR)</option>
+              <option value="ILS">Israeli New Shekel (ILS)</option>
+              <option value="INR">Indian Rupee (INR)</option>
+              <option value="JPY">Japanese Yen (JPY)</option>
+              <option value="KRW">South Korean Won (KRW)</option>
+              <option value="KWD">Kuwaiti Dinar (KWD)</option>
+              <option value="MXN">Mexican Peso (MXN)</option>
+              <option value="MYR">Malaysian Ringgit (MYR)</option>
+              <option value="NGN">Nigerian Naira (NGN)</option>
+              <option value="NOK">Norwegian Krone (NOK)</option>
+              <option value="NZD">New Zealand Dollar (NZD)</option>
+              <option value="PHP">Philippine Peso (PHP)</option>
+              <option value="PKR">Pakistani Rupee (PKR)</option>
+              <option value="PLN">Polish Złoty (PLN)</option>
+              <option value="QAR">Qatari Riyal (QAR)</option>
+              <option value="RUB">Russian Rubles (RUB)</option>
+              <option value="SAR">Saudi Riyal (SAR)</option>
+              <option value="SEK">Swedish Krona (SEK)</option>
+              <option value="SGD">Singapore Dollar (SGD)</option>
+              <option value="THB">Thai Baht (THB)</option>
+              <option value="TRY">Turkish Lira (TRY)</option>
+              <option value="TWD">New Taiwan Dollar (TWD)</option>
+              <option value="UAH">Ukrainian Hryvnia (UAH)</option>
+              <option value="VND">Vietnamese Dong (VND)</option>
+              <option value="ZAR">South African Rand (ZAR)</option>
+            </select>
+            <select
+              id="receipt-transaction-type"
+              class="w-full mb-3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 input-focus"
+            >
+              <option value="transfer">Transfer</option>
+              <option value="deposit">Deposit</option>
+              <option value="withdrawal">Withdrawal</option>
+            </select>
+            <select
+              id="receipt-payment-method"
+              class="w-full mb-3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 input-focus"
+            >
+              <option value="bank transfer">Bank Transfer</option>
+              <option value="crypto transfer">Crypto Transfer</option>
+            </select>
+            <input
+              type="date"
+              id="receipt-date"
+              class="w-full mb-3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 input-focus"
+            />
+            <input
+              type="time"
+              id="receipt-time"
+              class="w-full mb-3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 input-focus"
+            />
+            <input
+              type="text"
+              id="receipt-transaction-id"
+              placeholder="Transaction ID (e.g., FT25120V929U)"
+              class="w-full mb-3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 input-focus"
+            />
+            <input
+              type="number"
+              id="receipt-commission"
+              placeholder="Commission"
+              class="w-full mb-3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 input-focus"
+            />
+            <input
+              type="number"
+              id="receipt-vat"
+              placeholder="VAT Amount"
+              class="w-full mb-3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 input-focus"
+            />
+            <input
+              type="text"
+              id="receipt-bank"
+              placeholder="Bank Name"
+              class="w-full mb-3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 input-focus hidden"
+            />
+            <button
+              id="preview-receipt"
+              class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition duration-300"
+            >
+              Preview Receipt
+            </button>
+            <button
+              id="submit-receipt"
+              class="bg-orange-400 text-white px-4 py-2 rounded-lg hover:bg-orange-500 transition duration-300 ml-2"
+            >
+              Generate Receipt
+            </button>
+            <p id="receipt-message" class="mt-2 text-sm"></p>
+          </div>
+          <div id="receipt-preview" class="mt-6 hidden">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">
+              Receipt Preview
+            </h3>
+            <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+              <h4 class="text-xl font-bold text-teal-600 mb-2">
+                Thank You! Success
+              </h4>
+              <p class="text-sm text-gray-700 mb-2">
+                <span id="preview-message"></span>
+              </p>
+              <div id="qrcode" class="my-4 flex justify-center"></div>
+              <div id="pdf-preview-container" class="my-4 hidden">
+                <embed id="pdf-preview" type="application/pdf" />
+              </div>
+              <div class="flex justify-center space-x-4">
+                <button
+                  id="download-receipt"
+                  class="bg-orange-400 text-white px-4 py-2 rounded-lg hover:bg-orange-500 transition duration-300 hidden"
+                >
+                  Download Receipt
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      const apiBaseUrl = "https://links-backend-9i5k.onrender.com";
+
+      // Tab Switching (unchanged)
+      document.querySelectorAll(".tab-button").forEach((button) => {
+        button.addEventListener("click", function () {
+          document
+            .querySelectorAll(".tab-content")
+            .forEach((tab) => tab.classList.add("hidden"));
+          document
+            .querySelectorAll(".tab-button")
+            .forEach((btn) => btn.classList.remove("active"));
+          const tabId = this.dataset.tab;
+          document.getElementById(tabId).classList.remove("hidden");
+          this.classList.add("active");
+
+          if (tabId === "generate-receipt") {
+            setReceiptDateTime();
+          }
+        });
+      });
+
+      // Toggle Bank Input Visibility
+      document
+        .getElementById("receipt-payment-method")
+        .addEventListener("change", function () {
+          const bankInput = document.getElementById("receipt-bank");
+          bankInput.classList.toggle("hidden", this.value !== "bank transfer");
+        });
+
+      // Set Receipt Date and Time Fields and Initialize Bank Input Visibility
+      function setReceiptDateTime() {
+        const now = new Date();
+        const date = now.toISOString().split("T")[0];
+        const time = now.toTimeString().split(" ")[0].slice(0, 5);
+        document.getElementById("receipt-date").value = date;
+        document.getElementById("receipt-time").value = time;
+
+        // Check payment method and toggle bank input visibility
+        const paymentMethod = document.getElementById(
+          "receipt-payment-method"
+        ).value;
+        const bankInput = document.getElementById("receipt-bank");
+        bankInput.classList.toggle("hidden", paymentMethod !== "bank transfer");
+      }
+
+      // Validate Receipt Form
+      function validateReceiptForm() {
+        const sender = document.getElementById("receipt-sender").value.trim();
+        const recipient = document
+          .getElementById("receipt-recipient")
+          .value.trim();
+        const amount = document.getElementById("receipt-amount").value.trim();
+        const currency = document.getElementById("receipt-currency").value;
+        const transactionType = document.getElementById(
+          "receipt-transaction-type"
+        ).value;
+        const paymentMethod = document.getElementById(
+          "receipt-payment-method"
+        ).value;
+        const date = document.getElementById("receipt-date").value;
+        const time = document.getElementById("receipt-time").value;
+        const transactionId = document
+          .getElementById("receipt-transaction-id")
+          .value.trim();
+        const commission = document
+          .getElementById("receipt-commission")
+          .value.trim();
+        const vat = document.getElementById("receipt-vat").value.trim();
+        const bank = document.getElementById("receipt-bank").value.trim();
+        const message = document.getElementById("receipt-message");
+
+        if (
+          !sender ||
+          !recipient ||
+          !amount ||
+          !date ||
+          !time ||
+          !transactionId ||
+          !commission ||
+          !vat ||
+          isNaN(amount) ||
+          parseFloat(amount) <= 0 ||
+          isNaN(commission) ||
+          parseFloat(commission) < 0 ||
+          isNaN(vat) ||
+          parseFloat(vat) < 0 ||
+          (paymentMethod === "bank transfer" && !bank)
+        ) {
+          message.textContent = "Please fill in all fields correctly.";
+          message.classList.add("text-orange-500");
+          return null;
+        }
+
+        const totalAmount =
+          parseFloat(amount) + parseFloat(commission) + parseFloat(vat);
+        const data = {
+          sender_id: sender,
+          receiver_id: recipient,
+          amount: parseFloat(amount),
+          currency,
+          transaction_type: transactionType,
+          payment_method: paymentMethod,
+          date,
+          time,
+          transaction_id: transactionId,
+          commission: parseFloat(commission),
+          vat: parseFloat(vat),
+          total_amount: totalAmount,
+        };
+
+        if (paymentMethod === "bank transfer") {
+          data.bank = bank;
+        }
+
+        return data;
+      }
+
+      // Preview Receipt (Text and QR Code)
+      document
+        .getElementById("preview-receipt")
+        .addEventListener("click", () => {
+          const data = validateReceiptForm();
+          const message = document.getElementById("receipt-message");
+          message.textContent = "";
+          message.classList.remove("text-orange-500", "text-teal-600");
+
+          if (!data) return;
+
+          const formattedDate = new Date(data.date)
+            .toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+            .replace(/ /g, "-");
+
+          let previewMessage = `${
+            data.currency
+          } ${data.amount.toLocaleString()} debited from ${
+            data.sender_id
+          } for ${data.receiver_id} on ${formattedDate} at ${data.time} via ${
+            data.payment_method
+          } with transaction ID: ${data.transaction_id}. Total amount debited ${
+            data.currency
+          } ${data.total_amount.toLocaleString()} with commission of ${
+            data.currency
+          } ${data.commission.toLocaleString()} and VAT of ${
+            data.currency
+          } ${data.vat.toLocaleString()}.`;
+          if (data.bank) {
+            previewMessage += ` Bank: ${data.bank}.`;
+          }
+
+          document.getElementById("preview-message").textContent =
+            previewMessage;
+          document.getElementById("receipt-preview").classList.remove("hidden");
+          document
+            .getElementById("pdf-preview-container")
+            .classList.add("hidden");
+          document.getElementById("download-receipt").classList.add("hidden");
+
+          // Generate QR Code
+          const qrCodeElement = document.getElementById("qrcode");
+          qrCodeElement.innerHTML = "";
+          let qrText = `Transaction ID: ${data.transaction_id}, Amount: ${data.currency} ${data.amount}, Date: ${data.date}, Time: ${data.time}, Type: ${data.transaction_type}`;
+          if (data.bank) {
+            qrText += `, Bank: ${data.bank}`;
+          }
+          new QRCode(qrCodeElement, {
+            text: qrText,
+            width: 128,
+            height: 128,
+          });
+        });
+
+      // Generate Receipt (Fetch PDF and Show Preview)
+      document
+        .getElementById("submit-receipt")
+        .addEventListener("click", async () => {
+          const data = validateReceiptForm();
+          const message = document.getElementById("receipt-message");
+          message.textContent = "";
+          message.classList.remove("text-orange-500", "text-teal-600");
+
+          if (!data) return;
+
+          try {
+            const response = await fetch(`${apiBaseUrl}/generate_receipt`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+              const result = await response.json();
+              const pdfBase64 = result.pdf_base64;
+              const transactionId = result.transaction_id;
+
+              // Update preview with text and QR code
+              const formattedDate = new Date(data.date)
+                .toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
+                .replace(/ /g, "-");
+
+              let previewMessage = `${
+                data.currency
+              } ${data.amount.toLocaleString()} debited from ${
+                data.sender_id
+              } for ${data.receiver_id} on ${formattedDate} at ${
+                data.time
+              } via ${data.payment_method} with transaction ID: ${
+                data.transaction_id
+              }. Total amount debited ${
+                data.currency
+              } ${data.total_amount.toLocaleString()} with commission of ${
+                data.currency
+              } ${data.commission.toLocaleString()} and VAT of ${
+                data.currency
+              } ${data.vat.toLocaleString()}.`;
+              if (data.bank) {
+                previewMessage += ` Bank: ${data.bank}.`;
+              }
+
+              document.getElementById("preview-message").textContent =
+                previewMessage;
+              document
+                .getElementById("receipt-preview")
+                .classList.remove("hidden");
+
+              // Generate QR Code
+              const qrCodeElement = document.getElementById("qrcode");
+              qrCodeElement.innerHTML = "";
+              let qrText = `Transaction ID: ${transactionId}, Amount: ${data.currency} ${data.amount}, Date: ${data.date}, Time: ${data.time}, Type: ${data.transaction_type}`;
+              if (data.bank) {
+                qrText += `, Bank: ${data.bank}`;
+              }
+              new QRCode(qrCodeElement, {
+                text: qrText,
+                width: 128,
+                height: 128,
+              });
+
+              // Show PDF preview
+              const pdfPreview = document.getElementById("pdf-preview");
+              pdfPreview.src = `data:application/pdf;base64,${pdfBase64}`;
+              document
+                .getElementById("pdf-preview-container")
+                .classList.remove("hidden");
+              document
+                .getElementById("download-receipt")
+                .classList.remove("hidden");
+
+              // Setup download button
+              const downloadButton =
+                document.getElementById("download-receipt");
+              downloadButton.onclick = () => {
+                const link = document.createElement("a");
+                link.href = `data:application/pdf;base64,${pdfBase64}`;
+                link.download = `Financify_Receipt_${transactionId}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              };
+
+              message.textContent =
+                "Receipt generated and previewed successfully!";
+              message.classList.add("text-teal-600");
+
+              // Clear fields
+              document.getElementById("receipt-sender").value = "";
+              document.getElementById("receipt-recipient").value = "";
+              document.getElementById("receipt-amount").value = "";
+              document.getElementById("receipt-transaction-type").value =
+                "transfer";
+              document.getElementById("receipt-payment-method").value =
+                "bank transfer";
+              document.getElementById("receipt-date").value = "";
+              document.getElementById("receipt-time").value = "";
+              document.getElementById("receipt-transaction-id").value = "";
+              document.getElementById("receipt-commission").value = "";
+              document.getElementById("receipt-vat").value = "";
+              document.getElementById("receipt-bank").value = "";
+              document.getElementById("receipt-bank").classList.add("hidden");
+            } else {
+              const data = await response.json();
+              message.textContent = data.error || "Failed to generate receipt.";
+              message.classList.add("text-orange-500");
+            }
+          } catch (error) {
+            message.textContent = "Server error! Please try again later.";
+            message.classList.add("text-orange-500");
+            console.error("Error generating receipt:", error);
+          }
+        });
+
+      // Initialize with User Management Tab
+      document
+        .querySelector('.tab-button[data-tab="generate-receipt"]')
+        .click();
+    </script>
+  </body>
+</html>

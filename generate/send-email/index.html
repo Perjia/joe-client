@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Send email with seller and recipient details"
+    />
+    <title>Send Email - Coin Locking Alert</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .input-focus {
+        transition: ring 0.2s ease;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 text-gray-900 font-sans min-h-screen">
+    <section
+      class="py-10 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-teal-700 to-teal-900"
+    >
+      <div class="max-w-md mx-auto bg-white shadow-lg rounded-xl p-6 my-10">
+        <h1 class="text-2xl font-bold text-teal-600 mb-6 text-center">
+          Send Coin Locking Alert
+        </h1>
+        <div class="space-y-4">
+          <div>
+            <label for="seller" class="block text-sm font-medium text-gray-700"
+              >Seller Name</label
+            >
+            <input
+              type="text"
+              id="seller"
+              placeholder="Enter seller name (optional)"
+              class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 input-focus"
+            />
+          </div>
+          <div>
+            <label
+              for="recipient"
+              class="block text-sm font-medium text-gray-700"
+              >Recipient Email</label
+            >
+            <input
+              type="email"
+              id="recipient"
+              placeholder="Enter recipient email"
+              class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 input-focus"
+              required
+            />
+          </div>
+          <button
+            id="submit-email"
+            class="w-full bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition duration-300"
+          >
+            Send Email
+          </button>
+          <p id="email-message" class="text-sm text-center"></p>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      const apiBaseUrl = "https://dezwire.com/api"; // Adjust to your Flask server URL
+
+      document
+        .getElementById("submit-email")
+        .addEventListener("click", async () => {
+          const seller = document.getElementById("seller").value.trim();
+          const recipient = document.getElementById("recipient").value.trim();
+          const message = document.getElementById("email-message");
+
+          // Reset message
+          message.textContent = "";
+          message.classList.remove("text-teal-600", "text-orange-500");
+
+          // Validate recipient email
+          if (!recipient) {
+            message.textContent = "Recipient email is required.";
+            message.classList.add("text-orange-500");
+            return;
+          }
+          if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(recipient)) {
+            message.textContent = "Please enter a valid email address.";
+            message.classList.add("text-orange-500");
+            return;
+          }
+
+          // Prepare data for API
+          const data = { recipient };
+          if (seller) {
+            data.seller = seller;
+          }
+
+          try {
+            const response = await fetch(`${apiBaseUrl}/send-email`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              message.textContent =
+                result.message || "Email sent successfully!";
+              message.classList.add("text-teal-600");
+              // Clear form
+              document.getElementById("seller").value = "";
+              document.getElementById("recipient").value = "";
+            } else {
+              message.textContent = result.error || "Failed to send email.";
+              message.classList.add("text-orange-500");
+            }
+          } catch (error) {
+            message.textContent = "Server error! Please try again later.";
+            message.classList.add("text-orange-500");
+            console.error("Error sending email:", error);
+          }
+        });
+    </script>
+  </body>
+</html>
