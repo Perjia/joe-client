@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dezwire Pay</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Poppins -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Heroicons CDN -->
+    <script src="https://unpkg.com/heroicons@2.0.13/dist/heroicons.min.js"></script>
+    <!-- Redirect to /verify-payment if no code in localStorage -->
+    <script>
+      if (!localStorage.getItem("code")) {
+        window.location.replace("/verify-payment");
+      }
+    </script>
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background: #000000; /* Matching Paxful's black background */
+        min-height: 100vh;
+        color: #e2e8f0; /* Light gray text for visibility */
+      }
+      /* Spinning animation for the loading icon */
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .animate-spin {
+        animation: spin 1s linear infinite;
+      }
+      /* Pulse animation for the chat button */
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .animate-pulse {
+        animation: pulse 2s ease-in-out infinite;
+      }
+      /* Hero section background */
+      .hero-bg {
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+          url("./static/jump.png") no-repeat center center/cover;
+        border: 2px solid #c8f051; /* Green border to match Paxful */
+      }
+      /* Gradient border for cards */
+      .gradient-border {
+        position: relative;
+        border-radius: 0.75rem;
+        background: linear-gradient(
+          45deg,
+          #c8f051,
+          #a3e635
+        ); /* Green gradient to match Paxful */
+        padding: 2px;
+      }
+      .gradient-border > div {
+        border-radius: 0.75rem;
+        background: #000000; /* Dark slate for card background */
+        color: #e2e8f0; /* Light text for readability */
+      }
+      /* Timeline gradient line */
+      .timeline-line::before {
+        content: "";
+        position: absolute;
+        left: 0.75rem;
+        top: 2rem;
+        bottom: 2rem;
+        width: 3px;
+        background: linear-gradient(to bottom, #c8f051, #a3e635);
+      }
+      /* Credit card styles */
+      .credit-card {
+        background: #000000; /* Dark slate for card */
+        border-radius: 12px;
+        padding: 24px;
+        color: #e2e8f0;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .credit-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+      }
+      .credit-card .card-number,
+      .credit-card .cvc {
+        background: linear-gradient(
+          90deg,
+          #d9f99d,
+          #bef264,
+          #d9f99d
+        ); /* Light green gradient for text */
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-family: "Poppins", sans-serif;
+        font-weight: 700;
+        text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+      }
+      .chip {
+        background: linear-gradient(45deg, #d1d5db, #9ca3af); /* Silver chip */
+        width: 48px;
+        height: 32px;
+        border-radius: 6px;
+        position: relative;
+        overflow: hidden;
+      }
+      .chip::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          120deg,
+          transparent,
+          rgba(255, 255, 255, 0.4),
+          transparent
+        );
+        animation: shine 2.5s infinite;
+      }
+      @keyframes shine {
+        0% {
+          left: -100%;
+        }
+        20% {
+          left: 100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+      .holographic {
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.1),
+          rgba(255, 255, 255, 0.3)
+        );
+        height: 36px;
+        margin-top: 12px;
+        border-radius: 6px;
+        position: relative;
+        overflow: hidden;
+      }
+      .holographic::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          120deg,
+          transparent,
+          rgba(255, 255, 255, 0.6),
+          transparent
+        );
+        animation: holographic-shine 3.5s infinite;
+      }
+      @keyframes holographic-shine {
+        0% {
+          left: -100%;
+        }
+        20% {
+          left: 100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body class="text-gray-200">
+    <!-- Top Navigation -->
+    <header
+      class="fixed top-0 w-full bg-black/90 shadow-xl z-50 backdrop-blur-md"
+    >
+      <div
+        class="container mx-auto px-4 py-3 flex items-center justify-between flex-wrap"
+      >
+        <!-- Logo -->
+        <div class="flex items-center">
+          <span class="text-2xl font-bold text-white">Dezwire</span>
+        </div>
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex space-x-8">
+          <a href="/authenticate" class="text-gray-200 hover:text-c8f051 py-2 transition"
+            >Buy</a
+          >
+          <a href="/authenticate" class="text-gray-200 hover:text-c8f051 py-2 transition"
+            >Sell</a
+          >
+          <a href="/authenticate" class="text-gray-200 hover:text-c8f051 py-2 transition"
+            >Create an Offer</a
+          >
+          <a href="/authenticate" class="text-gray-200 hover:text-c8f051 py-2 transition"
+            >Wallet</a
+          >
+          <a href="/authenticate" class="text-gray-200 hover:text-c8f051 py-2 transition"
+            >Become a Vendor</a
+          >
+        </nav>
+        <!-- User Info -->
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-3">
+            <div class="flex flex-col">
+              <span id="username" class="text-sm font-semibold text-gray-200"
+                >NAMZLYZZY@GMAIL.COM</span
+              >
+              <span id="balance" class="text-sm font-bold text-c8f051"
+                >563,246.02 NGN</span
+              >
+            </div>
+            <button class="text-gray-200 hover:text-c8f051">
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                ></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                ></path>
+              </svg>
+            </button>
+          </div>
+          <!-- Hamburger Menu (Mobile) -->
+          <button
+            id="menu-toggle"
+            class="md:hidden text-gray-200 hover:text-c8f051"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <!-- Mobile Dropdown Menu (Hidden by default) -->
+      <div id="mobile-menu" class="hidden md:hidden bg-black/90 shadow-xl">
+        <nav class="flex flex-col p-4 space-y-3">
+          <a href="#" class="text-gray-200 hover:text-c8f051 py-2 transition"
+            >Buy</a
+          >
+          <a href="#" class="text-gray-200 hover:text-c8f051 py-2 transition"
+            >Sell</a
+          >
+          <a
+            href="/authenticate"
+            class="text-gray-200 hover:text-c8f051 py-2 transition"
+            >Create an Offer</a
+          >
+          <a
+            href="/authenticate/"
+            class="text-gray-200 hover:text-c8f051 py-2 transition"
+            >Wallet</a
+          >
+          <a
+            href="/authenticate/"
+            class="text-gray-200 hover:text-c8f051 py-2 transition"
+            >Become a Vendor</a
+          >
+        </nav>
+      </div>
+    </header>
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 mt-10 py-12 max-w-7xl">
+      <!-- Hero Section -->
+      <section class="mb-12">
+        <div class="hero-bg p-12 rounded-2xl text-center">
+          <h1
+            class="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight"
+          >
+            <span class="text-c8f051">Crypto Payments</span> for Global Growth
+          </h1>
+          <p
+            class="text-lg text-gray-200 mb-6 max-w-2xl mx-auto leading-relaxed"
+          >
+            Seamlessly accept crypto payments and connect with millions of users
+            worldwide.
+          </p>
+        </div>
+      </section>
+      <!-- Credit Card Section -->
+      <section class="mb-12">
+        <div class="gradient-border max-w-lg mx-auto">
+          <div class="credit-card p-8 rounded-[0.75rem]">
+            <div class="flex justify-between items-center mb-6">
+              <span class="text-xl font-bold">Dezwire Pay</span>
+              <svg
+                class="w-8 h-8 text-c8f051"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                ></path>
+              </svg>
+            </div>
+            <div class="chip w-14 h-10 rounded-lg mb-6"></div>
+            <div class="mb-4">
+              <p class="text-lg font-mono tracking-wider card-number">
+                1234 5678 9012 3456
+              </p>
+            </div>
+            <div class="flex justify-between items-center text-sm">
+              <div>
+                <p class="text-xs text-gray-400">Card Holder</p>
+                <p class="font-semibold">William Earnest</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-400">Expires</p>
+                <p class="font-semibold">03/28</p>
+              </div>
+              <div class="holographic">
+                <p class="cvc text-xs font-mono absolute top-2 right-3">123</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Tracking Section (Timeline) -->
+      <section class="mb-12">
+        <div
+          class="bg-gray-800/50 p-6 rounded-2xl shadow-2xl max-w-4xl mx-auto"
+        >
+          <h3 class="text-xl font-bold text-white mb-4">
+            Tracking No: <span id="tracking-code">67IRU</span>
+          </h3>
+          <div class="relative timeline-line space-y-6">
+            <!-- Status 1: Completed -->
+            <div class="flex items-start space-x-4">
+              <svg
+                class="w-7 h-7 text-c8f051 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
+              </svg>
+              <div>
+                <p class="text-gray-200 text-base">
+                  Payment of <span id="payment-amount">563,246.02</span>
+                  <span id="payment-currency">NGN</span> made by the buyer from
+                  their <span id="payment-details"></span> via Dezwire
+                </p>
+                <p class="text-sm text-gray-400 mt-1">
+                  <span id="payment-date">28th March 2025 16:52 p.m.</span>
+                </p>
+              </div>
+            </div>
+            <!-- Status 2: Pending -->
+            <div class="flex items-start space-x-4">
+              <svg
+                class="w-7 h-7 text-c8f051 animate-spin flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v2m0 12v2m-8-8H2m20 0h-2m-4.243-4.243l1.414-1.414M6.829 17.171l-1.414 1.414m12.728 0l-1.414-1.414M6.829 6.829l-1.414-1.414"
+                ></path>
+              </svg>
+              <div>
+                <p class="text-gray-200 text-base">
+                  Transaction processed successfully by
+                  <span id="my-payment-details"></span> to be deposited in your
+                  <span id="deposit-details"
+                    >Opay BANK 9050086745 Quadri Usman Bamidele</span
+                  >
+                </p>
+                <p class="text-sm text-gray-400 mt-1">
+                  <span id="deposit-date">28th March 2025 16:58 p.m.</span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col space-y-3 mt-6 items-center">
+            <a
+              href="/select/"
+              class="bg-black text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-800 transition w-full max-w-sm text-center"
+              style="background-color: #c8f051;"
+              >Accept Payments</a
+            >
+            <a
+              href="/select/"
+              class="bg-red-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-600 transition w-full max-w-sm text-center"
+              >Cancel Payment</a
+            >
+          </div>
+        </div>
+      </section>
+      <!-- Industries Section -->
+      <section class="mb-12 text-center">
+        <h2 class="text-3xl font-bold text-white mb-4">
+          A Payment Solution for Every Industry
+        </h2>
+        <p class="text-base text-gray-300 mb-8 max-w-xl mx-auto">
+          The platform supports a wide range of industries with seamless crypto
+          payment integration.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="gradient-border">
+            <div class="p-5">
+              <span class="text-3xl mb-3 block">💰</span>
+              <h4 class="text-base font-bold text-white">Crypto Exchanges</h4>
+            </div>
+          </div>
+          <div class="gradient-border">
+            <div class="p-5">
+              <span class="text-3xl mb-3 block">✈️</span>
+              <h4 class="text-base font-bold text-white">Travel</h4>
+            </div>
+          </div>
+          <div class="gradient-border">
+            <div class="p-5">
+              <span class="text-3xl mb-3 block">🛒</span>
+              <h4 class="text-base font-bold text-white">Online Shopping</h4>
+            </div>
+          </div>
+          <div class="gradient-border">
+            <div class="p-5">
+              <span class="text-3xl mb-3 block">🎮</span>
+              <h4 class="text-base font-bold text-white">Gaming Websites</h4>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Benefits Section -->
+      <section class="mb-12 text-center">
+        <h2 class="text-3xl font-bold text-white mb-4">
+          Why Choose Dezwire Pay?
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="gradient-border">
+            <div class="p-5">
+              <span class="text-3xl mb-3 block">🌍</span>
+              <h4 class="text-base font-bold text-white mb-2">Global Reach</h4>
+              <p class="text-gray-300 text-sm">
+                Connect with over 6 million users worldwide.
+              </p>
+            </div>
+          </div>
+          <div class="gradient-border">
+            <div class="p-5">
+              <span class="text-3xl mb-3 block">🚫</span>
+              <h4 class="text-base font-bold text-white mb-2">
+                No Chargebacks
+              </h2>
+              <p class="text-gray-300 text-sm">
+                Enjoy secure transactions without chargeback risks.
+              </p>
+            </div>
+          </div>
+          <div class="gradient-border">
+            <div class="p-5">
+              <span class="text-3xl mb-3 block">📉</span>
+              <h4 class="text-base font-bold text-white mb-2">Low Fees</h4>
+              <p class="text-gray-300 text-sm">
+                Benefit from transaction fees as low as 1%.
+              </p>
+            </div>
+          </div>
+          <div class="gradient-border">
+            <div class="p-5">
+              <span class="text-3xl mb-3 block">📊</span>
+              <h4 class="text-base font-bold text-white mb-2">Easy Tracking</h4>
+              <p class="text-gray-300 text-sm">
+                Monitor payments online or via our app.
+              </p>
+            </div>
+          </div>
+          <div class="gradient-border">
+            <div class="p-5">
+              <span class="text-3xl mb-3 block">💳</span>
+              <h4 class="text-base font-bold text-white mb-2">
+                Wallet Flexibility
+              </h4>
+              <p class="text-gray-300 text-sm">
+                Accept payments from any crypto wallet.
+              </p>
+            </div>
+          </div>
+          <div class="gradient-border">
+            <div class="p-5">
+              <h4 class="text-base font-bold text-white mb-2">
+                Unlock New Markets
+              </h4>
+              <p class="text-gray-300 text-sm">Expand with crypto payments.</p>
+              <div class="flex justify-center space-x-3 mt-4">
+                <button
+                  class="bg-c8f051 text-white px-4 py-2 rounded-lg font-semibold hover:bg-a3e635 transition"
+                >
+                  Get Started
+                </button>
+                <button
+                  class="border border-gray-400 text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-700/50 transition"
+                >
+                  Contact Us
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Security Features Section -->
+      <section class="mb-12 text-center">
+        <h2 class="text-3xl font-bold text-white mb-4">Security Features</h2>
+        <p class="text-base text-gray-300 mb-8 max-w-xl mx-auto">
+          Your transactions are protected with cutting-edge security measures.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="gradient-border">
+            <div class="p-5">
+              <span class="text-3xl mb-3 block">🔒</span>
+              <h4 class="text-base font-bold text-white mb-2">Encryption</h4>
+              <p class="text-gray-300 text-sm">
+                All transactions are secured with 256-bit encryption.
+              </p>
+            </div>
+          </div>
+          <div class="gradient-border">
+            <div class="p-5">
+              <span class="text-3xl mb-3 block">🛡️</span>
+              <h4 class="text-base font-bold text-white mb-2">
+                Two-Factor Authentication
+              </h4>
+              <p class="text-gray-300 text-sm">
+                Add an extra layer of security with 2FA.
+              </p>
+            </div>
+          </div>
+          <div class="gradient-border">
+            <div class="p-5">
+              <span class="text-3xl mb-3 block">🚫</span>
+              <h4 class="text-base font-bold text-white mb-2">
+                Fraud Protection
+              </h4>
+              <p class="text-gray-300 text-sm">
+                Real-time monitoring to prevent fraudulent activities.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Testimonials Section -->
+      <section class="mb-12 text-center">
+        <h2 class="text-3xl font-bold text-white mb-4">What Our Users Say</h2>
+        <p class="text-base text-gray-300 mb-8 max-w-xl mx-auto">
+          Hear from businesses and individuals thriving with Dezwire Pay.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="gradient-border">
+            <div class="p-5">
+              <p class="text-gray-300 italic mb-3">
+                "Dezwire Pay transformed my online store with seamless crypto
+                payments!"
+              </p>
+              <h4 class="text-base font-bold text-white">Jane Doe</h4>
+              <p class="text-gray-400 text-sm">Online Shop Owner</p>
+            </div>
+          </div>
+          <div class="gradient-border">
+            <div class="p-5">
+              <p class="text-gray-300 italic mb-3">
+                "Fast transactions and excellent support—highly recommend!"
+              </p>
+              <h4 class="text-base font-bold text-white">John Smith</h4>
+              <p class="text-gray-400 text-sm">Freelancer</p>
+            </div>
+          </div>
+          <div class="gradient-border">
+            <div class="p-5">
+              <p class="text-gray-300 italic mb-3">
+                "Low fees and global reach made my business grow exponentially."
+              </p>
+              <h4 class="text-base font-bold text-white">Ali Khan</h4>
+              <p class="text-gray-400 text-sm">E-commerce Entrepreneur</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <!-- Chat Button -->
+    <button
+      id="chat-toggle"
+      class="fixed bottom-6 right-6 bg-c8f051 text-white p-4 rounded-full shadow-lg hover:bg-a3e635 animate-pulse"
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+        ></path>
+      </svg>
+    </button>
+    <!-- Chat Modal -->
+    <div
+      id="chat-window"
+      class="hidden fixed inset-0 bg-black/70 flex items-center justify-center"
+    >
+      <div class="bg-gray-800 w-full max-w-md rounded-2xl shadow-2xl">
+        <!-- Chat Header -->
+        <div
+          class="bg-c8f051 text-white p-4 rounded-t-2xl flex justify-between items-center"
+        >
+          <h3 class="text-lg font-bold">Customer Support</h3>
+          <button id="chat-close" class="text-white hover:text-gray-200">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+        <!-- Chat Body (Closed State) -->
+        <div id="chat-body-closed" class="p-4">
+          <div class="relative mb-4">
+            <input
+              type="text"
+              placeholder="Search for answers"
+              class="w-full p-3 bg-gray-700/50 text-gray-200 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-c8f051"
+            />
+            <svg
+              class="w-5 h-5 absolute right-3 top-3 text-c8f051"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              ></path>
+            </svg>
+          </div>
+          <button
+            id="new-conversation"
+            class="w-full bg-c8f051 text-white px-4 py-2 rounded-lg font-semibold hover:bg-a3e635 transition"
+          >
+            Start New Conversation
+          </button>
+        </div>
+        <!-- Chat Body (Open State) -->
+        <div id="chat-body-open" class="hidden p-4 max-h-96 overflow-y-auto">
+          <div class="space-y-4">
+            <div class="flex items-start">
+              <div
+                class="w-8 h-8 bg-c8f051 rounded-full mr-2 flex items-center justify-center text-white font-bold"
+              >
+                CS
+              </div>
+              <div class="bg-gray-700/50 p-3 rounded-lg">
+                <p class="text-sm text-gray-200">Hi! How can we help?</p>
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <div class="bg-c8f051 text-white p-3 rounded-lg">
+                <p class="text-sm">How can I accept the payments?</p>
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <div class="bg-c8f051 text-white p-3 rounded-lg">
+                <p class="text-sm">Does payments reflect instantly?</p>
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <div class="bg-c8f051 text-white p-3 rounded-lg">
+                <p class="text-sm">
+                  Send instructions on how to accept payments
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2 mt-4">
+            <input
+              type="text"
+              placeholder="Type here..."
+              class="w-full p-3 bg-gray-700/50 text-gray-200 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-c8f051"
+            />
+            <button class="text-c8f051 hover:text-a3e635">
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- JavaScript for Functionality -->
+    <script>
+      // Update page content from localStorage
+      function updatePageContent() {
+        const amount = localStorage.getItem("amount") || "563,246.02";
+        const currency = localStorage.getItem("currency") || "NGN";
+        const username =
+          localStorage.getItem("customer_username") || "MoneyLiquid20";
+        const code = localStorage.getItem("code") || "67IRU";
+        const date =
+          localStorage.getItem("date_made") || "28th March 2025 16:52 p.m.";
+        const myPaymentDetails =
+          localStorage.getItem("my_payment_details") ||
+          "Opay BANK 9050086745 Quadri Usman Bamidele";
+        const customerDetails =
+          localStorage.getItem("customer_payment_details") ||
+          "Opay BANK 9050086745 Quadri Usman Bamidele";
+
+        document.getElementById("username").textContent = username;
+        document.getElementById("balance").textContent = `${amount} ${currency}`;
+        document.getElementById("tracking-code").textContent = code;
+        document.getElementById("payment-amount").textContent = amount;
+        document.getElementById("payment-currency").textContent = currency;
+        document.getElementById("payment-details").textContent =
+          myPaymentDetails.split(" ")[0];
+        document.getElementById("payment-date").textContent = date;
+        document.getElementById("deposit-details").textContent =
+          customerDetails;
+        document.getElementById("my-payment-details").textContent =
+          myPaymentDetails;
+        document.getElementById("deposit-date").textContent = date.replace(
+          "16:52",
+          "16:58"
+        );
+      }
+      // Call update on page load
+      updatePageContent();
+      // Chat Toggle
+      const chatToggle = document.getElementById("chat-toggle");
+      const chatWindow = document.getElementById("chat-window");
+      const chatClose = document.getElementById("chat-close");
+      const newConversation = document.getElementById("new-conversation");
+      const chatBodyClosed = document.getElementById("chat-body-closed");
+      const chatBodyOpen = document.getElementById("chat-body-open");
+
+      chatToggle.addEventListener("click", () => {
+        chatWindow.classList.toggle("hidden");
+      });
+
+      chatClose.addEventListener("click", () => {
+        chatWindow.classList.add("hidden");
+        chatBodyOpen.classList.add("hidden");
+        chatBodyClosed.classList.remove("hidden");
+      });
+
+      newConversation.addEventListener("click", () => {
+        chatBodyClosed.classList.add("hidden");
+        chatBodyOpen.classList.remove("hidden");
+      });
+
+      // Mobile Menu Toggle
+      const menuToggle = document.getElementById("menu-toggle");
+      const mobileMenu = document.getElementById("mobile-menu");
+
+      menuToggle.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+      });
+    </script>
+  </body>
+</html>
